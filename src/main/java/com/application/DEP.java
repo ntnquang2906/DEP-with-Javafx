@@ -103,10 +103,9 @@ public class DEP extends Application {
         grid.setVgap(5);
         grid.setPadding(new Insets(5));
         grid.setStyle("-fx-background-color: white;");
-grid.setAlignment(Pos.TOP_CENTER);
+        grid.setAlignment(Pos.TOP_CENTER);
 
         Label header = new Label(title + " information");
-        
         header.setMaxWidth(Double.MAX_VALUE);
         header.setAlignment(Pos.CENTER);
         GridPane.setColumnSpan(header, 2);
@@ -154,11 +153,10 @@ grid.setAlignment(Pos.TOP_CENTER);
     }
 
     private void setupSelectionHandlers() {
-        deptList.setOnMouseClicked(e -> {
-            Integer selected = deptList.getSelectionModel().getSelectedItem();
-            if (selected != null) {
+        deptList.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null) {
                 for (Department d : departments) {
-                    if (d.getDeptNumber() == selected) {
+                    if (d.getDeptNumber() == newVal) {
                         deptFields.get("Department Number").setText(String.valueOf(d.getDeptNumber()));
                         deptFields.get("Name").setText(d.getDeptName());
                         deptFields.get("Manager").setText(String.valueOf(d.getManagerNumber()));
@@ -170,11 +168,10 @@ grid.setAlignment(Pos.TOP_CENTER);
             }
         });
 
-        empList.setOnMouseClicked(e -> {
-            Integer selected = empList.getSelectionModel().getSelectedItem();
-            if (selected != null) {
+        empList.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null) {
                 for (Employee emp : employees) {
-                    if (emp.getEmpNumber() == selected) {
+                    if (emp.getEmpNumber() == newVal) {
                         empFields.get("Employee Number").setText(String.valueOf(emp.getEmpNumber()));
                         empFields.get("Name").setText(emp.getName());
                         empFields.get("DOB").setText(emp.getDob());
@@ -194,11 +191,10 @@ grid.setAlignment(Pos.TOP_CENTER);
             }
         });
 
-        projList.setOnMouseClicked(e -> {
-            Integer selected = projList.getSelectionModel().getSelectedItem();
-            if (selected != null) {
+        projList.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null) {
                 for (Project p : projects) {
-                    if (p.getProjNumber() == selected) {
+                    if (p.getProjNumber() == newVal) {
                         projFields.get("Project Number").setText(String.valueOf(p.getProjNumber()));
                         projFields.get("Title").setText(p.getTitle());
                         projFields.get("Sponsor").setText(p.getSponsor());
@@ -210,10 +206,9 @@ grid.setAlignment(Pos.TOP_CENTER);
             }
         });
 
-        worksList.setOnMouseClicked(e -> {
-            int selectedIndex = worksList.getSelectionModel().getSelectedIndex();
-            if (selectedIndex >= 0) {
-                WorksOn selected = worksOnList.get(selectedIndex);
+        worksList.getSelectionModel().selectedIndexProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && newVal.intValue() >= 0) {
+                WorksOn selected = worksOnList.get(newVal.intValue());
                 worksFields.get("Employee number").setText(String.valueOf(selected.getEmpNumber()));
                 worksFields.get("Project number").setText(String.valueOf(selected.getProjNumber()));
                 worksFields.get("Hours").setText(String.valueOf(selected.getHours()));
@@ -223,10 +218,18 @@ grid.setAlignment(Pos.TOP_CENTER);
 
     private void loadData() {
         departments = DataIO.loadDepartments("departments.txt");
+        System.out.println("✅ Departments loaded: " + departments.size());
+
         employees = DataIO.loadEmployees("employees.txt");
+        System.out.println("✅ Employees loaded: " + employees.size());
+
         projects = DataIO.loadProjects("projects.txt");
+        System.out.println("✅ Projects loaded: " + projects.size());
+
         worksOnList = DataIO.loadWorksOn("workson.txt");
+        System.out.println("✅ WorksOn loaded: " + worksOnList.size());
     }
+
 
     private void handleAdd() {
         Integer selectedEmp = empList.getSelectionModel().getSelectedItem();
