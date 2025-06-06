@@ -1,4 +1,4 @@
-module com.csit213.depwithjavafx {
+module com {
     requires javafx.controls;
     requires javafx.fxml;
     requires javafx.web;
@@ -11,6 +11,9 @@ module com.csit213.depwithjavafx {
     requires eu.hansolo.tilesfx;
     requires com.almasb.fxgl.all;
 
-    opens com.csit213.depwithjavafx to javafx.fxml;
-    exports com.csit213.depwithjavafx;
+    opens com to javafx.fxml;
+    exports com.application;
+    opens com.application to javafx.fxml;
+    exports com.model;
+    opens com.model to javafx.fxml;
 }

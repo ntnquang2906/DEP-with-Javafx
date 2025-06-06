@@ -1,3 +1,11 @@
+/*-----------------------------------
+Student name: Tien Nhat Quang Nguyen
+Student number: 7722242
+Subject code: CSIT213
+-----------------------------------*/
+
+package com.application;
+
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.chart.PieChart;
@@ -5,10 +13,10 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.stage.Stage;
-import java.util.ArrayList;
-import java.util.Optional;
+
+import java.util.*;
+import com.model.*;
 
 public class DEP extends Application {
     private ArrayList<Department> departments;
@@ -23,17 +31,22 @@ public class DEP extends Application {
 
     private TextField messageField = new TextField();
 
+    private Map<String, TextField> deptFields = new HashMap<>();
+    private Map<String, TextField> empFields = new HashMap<>();
+    private Map<String, TextField> projFields = new HashMap<>();
+    private Map<String, TextField> worksFields = new HashMap<>();
+
     @Override
     public void start(Stage primaryStage) {
         loadData();
 
-        GridPane deptPane = createGridPane("Department", deptList,
+        GridPane deptPane = createGridPane("Department", deptList, deptFields,
                 "Department Number", "Name", "Manager", "Budget", "Start date");
-        GridPane empPane = createGridPane("Employee", empList,
+        GridPane empPane = createGridPane("Employee", empList, empFields,
                 "Employee Number", "Name", "DOB", "Address", "Gender", "Salary", "Supervisor", "Department", "Skill/Language");
-        GridPane projPane = createGridPane("Project", projList,
+        GridPane projPane = createGridPane("Project", projList, projFields,
                 "Project Number", "Title", "Sponsor", "Department", "Budget");
-        GridPane workPane = createGridPane("Works on", worksList,
+        GridPane workPane = createGridPane("Works on", worksList, worksFields,
                 "Works on", "Employee number", "Project number", "Hours");
 
         Button addButton = new Button("Add");
@@ -42,9 +55,7 @@ public class DEP extends Application {
 
         HBox buttonRow = new HBox(10, addButton, deleteButton, saveButton);
         buttonRow.setAlignment(Pos.CENTER);
-        StackPane buttonCell = new StackPane(buttonRow);
-        buttonCell.setAlignment(Pos.CENTER);
-        workPane.add(buttonCell, 1, 6);
+        workPane.add(buttonRow, 1, 6);
 
         workPane.add(new Label("Message"), 0, 7);
         workPane.add(messageField, 1, 7);
@@ -53,6 +64,8 @@ public class DEP extends Application {
         HBox infoRow = new HBox(20, deptPane, empPane, projPane, workPane);
         infoRow.setPadding(new Insets(10));
         infoRow.setAlignment(Pos.TOP_LEFT);
+        infoRow.setPrefWidth(Double.MAX_VALUE);
+
         HBox.setHgrow(deptPane, Priority.ALWAYS);
         HBox.setHgrow(empPane, Priority.ALWAYS);
         HBox.setHgrow(projPane, Priority.ALWAYS);
@@ -76,6 +89,7 @@ public class DEP extends Application {
 
         setupListViews();
         setupEventHandlers(addButton, deleteButton, saveButton);
+        setupSelectionHandlers();
 
         Scene scene = new Scene(root, 1350, 700);
         primaryStage.setScene(scene);
@@ -83,55 +97,47 @@ public class DEP extends Application {
         primaryStage.show();
     }
 
-    private GridPane createGridPane(String title, ListView<?> listView, String... labels) {
+    private GridPane createGridPane(String title, ListView<?> listView, Map<String, TextField> fieldMap, String... labels) {
         GridPane grid = new GridPane();
         grid.setHgap(10);
         grid.setVgap(5);
         grid.setPadding(new Insets(5));
         grid.setStyle("-fx-background-color: white;");
-        grid.setMaxWidth(Double.MAX_VALUE);
+grid.setAlignment(Pos.TOP_CENTER);
 
         Label header = new Label(title + " information");
+        
         header.setMaxWidth(Double.MAX_VALUE);
         header.setAlignment(Pos.CENTER);
         GridPane.setColumnSpan(header, 2);
-        grid.add(header, 0, 0, 2, 1);
+        grid.add(header, 0, 0);
 
         int row = 1;
         for (String label : labels) {
             Label lbl = new Label(label);
             lbl.setMinWidth(120);
+            lbl.setAlignment(Pos.BASELINE_LEFT);
             grid.add(lbl, 0, row);
 
-            boolean isListViewRow =
-                    (title.equals("Department") && label.equals("Department Number")) ||
-                    (title.equals("Employee") && label.equals("Employee Number")) ||
-                    (title.equals("Project") && label.equals("Project Number")) ||
-                    (title.equals("Works on") && label.equals("Works on"));
-
-            if (isListViewRow) {
+            if ((title.equals("Department") && label.equals("Department Number")) ||
+                (title.equals("Employee") && label.equals("Employee Number")) ||
+                (title.equals("Project") && label.equals("Project Number")) ||
+                (title.equals("Works on") && label.equals("Works on"))) {
                 ScrollPane scroll = new ScrollPane(listView);
                 scroll.setFitToHeight(true);
                 scroll.setFitToWidth(true);
-                scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
-                scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
                 scroll.setPrefViewportHeight(100);
                 scroll.setPrefViewportWidth(180);
                 grid.add(scroll, 1, row);
             } else {
-                grid.add(new TextField(), 1, row);
+                TextField tf = new TextField();
+                tf.setEditable(false);
+                fieldMap.put(label, tf);
+                grid.add(tf, 1, row);
             }
-
             row++;
         }
         return grid;
-    }
-
-    private void loadData() {
-        departments = DataIO.loadDepartments("departments.txt");
-        employees = DataIO.loadEmployees("employees.txt");
-        projects = DataIO.loadProjects("projects.txt");
-        worksOnList = DataIO.loadWorksOn("workson.txt");
     }
 
     private void setupListViews() {
@@ -147,78 +153,154 @@ public class DEP extends Application {
         saveButton.setOnAction(e -> handleSave());
     }
 
-    private void handleAdd() {
-        try {
-            Integer selectedEmp = empList.getSelectionModel().getSelectedItem();
-            Integer selectedProj = projList.getSelectionModel().getSelectedItem();
-            String hourText = getTextFieldFromGrid("Hours");
-
-            if (selectedEmp == null || selectedProj == null || hourText.isEmpty()) {
-                messageField.setText("Missing input: employee, project, or hours.");
-                return;
-            }
-
-            double hours = Double.parseDouble(hourText);
-
-            for (WorksOn w : worksOnList) {
-                if (w.getEmpNumber() == selectedEmp && w.getProjNumber() == selectedProj) {
-                    messageField.setText("This employee already works on this project.");
-                    return;
-                }
-            }
-
-            WorksOn newWork = new WorksOn(selectedEmp, selectedProj, hours);
-            worksOnList.add(newWork);
-            worksList.getItems().add(newWork.toString());
-            messageField.setText("Work assignment added.");
-        } catch (Exception ex) {
-            messageField.setText("Invalid input.");
-        }
-    }
-
-    private String getTextFieldFromGrid(String labelText) {
-        for (Node pane : ((VBox) ((Scene) messageField.getScene()).getRoot()).getChildren()) {
-            if (pane instanceof HBox) {
-                for (Node section : ((HBox) pane).getChildren()) {
-                    if (section instanceof GridPane) {
-                        GridPane grid = (GridPane) section;
-                        for (int i = 0; i < grid.getChildren().size(); i++) {
-                            Node node = grid.getChildren().get(i);
-                            if (node instanceof Label && ((Label) node).getText().equals(labelText)) {
-                                int index = GridPane.getRowIndex(node);
-                                for (Node n : grid.getChildren()) {
-                                    if (GridPane.getRowIndex(n) == index && n instanceof TextField) {
-                                        return ((TextField) n).getText();
-                                    }
-                                }
-                            }
-                        }
+    private void setupSelectionHandlers() {
+        deptList.setOnMouseClicked(e -> {
+            Integer selected = deptList.getSelectionModel().getSelectedItem();
+            if (selected != null) {
+                for (Department d : departments) {
+                    if (d.getDeptNumber() == selected) {
+                        deptFields.get("Department Number").setText(String.valueOf(d.getDeptNumber()));
+                        deptFields.get("Name").setText(d.getDeptName());
+                        deptFields.get("Manager").setText(String.valueOf(d.getManagerNumber()));
+                        deptFields.get("Budget").setText(String.valueOf(d.getBudget()));
+                        deptFields.get("Start date").setText(d.getStartDate());
+                        break;
                     }
                 }
             }
+        });
+
+        empList.setOnMouseClicked(e -> {
+            Integer selected = empList.getSelectionModel().getSelectedItem();
+            if (selected != null) {
+                for (Employee emp : employees) {
+                    if (emp.getEmpNumber() == selected) {
+                        empFields.get("Employee Number").setText(String.valueOf(emp.getEmpNumber()));
+                        empFields.get("Name").setText(emp.getName());
+                        empFields.get("DOB").setText(emp.getDob());
+                        empFields.get("Address").setText(emp.getAddress());
+                        empFields.get("Gender").setText(emp.getGender());
+                        empFields.get("Salary").setText(String.valueOf(emp.getSalary()));
+                        empFields.get("Supervisor").setText(String.valueOf(emp.getSupervisorNumber()));
+                        empFields.get("Department").setText(String.valueOf(emp.getDeptNumber()));
+                        if (emp instanceof Admin) {
+                            empFields.get("Skill/Language").setText(((Admin) emp).getSkills());
+                        } else if (emp instanceof Developer) {
+                            empFields.get("Skill/Language").setText(((Developer) emp).getProgrammingLanguages());
+                        }
+                        break;
+                    }
+                }
+            }
+        });
+
+        projList.setOnMouseClicked(e -> {
+            Integer selected = projList.getSelectionModel().getSelectedItem();
+            if (selected != null) {
+                for (Project p : projects) {
+                    if (p.getProjNumber() == selected) {
+                        projFields.get("Project Number").setText(String.valueOf(p.getProjNumber()));
+                        projFields.get("Title").setText(p.getTitle());
+                        projFields.get("Sponsor").setText(p.getSponsor());
+                        projFields.get("Department").setText(String.valueOf(p.getDeptNumber()));
+                        projFields.get("Budget").setText(String.valueOf(p.getBudget()));
+                        break;
+                    }
+                }
+            }
+        });
+
+        worksList.setOnMouseClicked(e -> {
+            int selectedIndex = worksList.getSelectionModel().getSelectedIndex();
+            if (selectedIndex >= 0) {
+                WorksOn selected = worksOnList.get(selectedIndex);
+                worksFields.get("Employee number").setText(String.valueOf(selected.getEmpNumber()));
+                worksFields.get("Project number").setText(String.valueOf(selected.getProjNumber()));
+                worksFields.get("Hours").setText(String.valueOf(selected.getHours()));
+            }
+        });
+    }
+
+    private void loadData() {
+        departments = DataIO.loadDepartments("departments.txt");
+        employees = DataIO.loadEmployees("employees.txt");
+        projects = DataIO.loadProjects("projects.txt");
+        worksOnList = DataIO.loadWorksOn("workson.txt");
+    }
+
+    private void handleAdd() {
+        Integer selectedEmp = empList.getSelectionModel().getSelectedItem();
+        Integer selectedProj = projList.getSelectionModel().getSelectedItem();
+
+        if (selectedEmp == null || selectedProj == null) {
+            messageField.setText("Please select an employee and a project.");
+            return;
         }
-        return "";
+
+        Employee emp = employees.stream()
+                .filter(e -> e.getEmpNumber() == selectedEmp)
+                .findFirst()
+                .orElse(null);
+
+        if (!(emp instanceof Developer)) {
+            messageField.setText("Please select a developer.");
+            return;
+        }
+
+        for (WorksOn w : worksOnList) {
+            if (w.getEmpNumber() == selectedEmp && w.getProjNumber() == selectedProj) {
+                messageField.setText("Employee " + selectedEmp + " has already worked on Project " + selectedProj);
+                return;
+            }
+        }
+
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Input Hours");
+        dialog.setHeaderText(null);
+        dialog.setContentText("Enter hours:");
+        Optional<String> result = dialog.showAndWait();
+
+        result.ifPresent(hoursStr -> {
+            try {
+                double hours = Double.parseDouble(hoursStr);
+                WorksOn newRecord = new WorksOn(selectedEmp, selectedProj, hours);
+                worksOnList.add(newRecord);
+                worksList.getItems().add(newRecord.toString());
+                messageField.setText("Work assignment added.");
+            } catch (NumberFormatException ex) {
+                messageField.setText("Invalid number format.");
+            }
+        });
     }
 
     private void handleDelete() {
-        int selected = worksList.getSelectionModel().getSelectedIndex();
-        if (selected >= 0) {
-            worksOnList.remove(selected);
-            worksList.getItems().remove(selected);
-            messageField.setText("Work assignment deleted.");
-        } else {
-            messageField.setText("Please select a record to delete.");
+        int selectedIndex = worksList.getSelectionModel().getSelectedIndex();
+        if (selectedIndex < 0) {
+            messageField.setText("Please select a works-on record to delete.");
+            return;
+        }
+
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Delete Confirmation");
+        alert.setHeaderText(null);
+        alert.setContentText("Are you sure you want to delete the selected works-on record?");
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            worksOnList.remove(selectedIndex);
+            worksList.getItems().remove(selectedIndex);
+            messageField.setText("The selected works-on record has been deleted.");
         }
     }
 
     private void handleSave() {
-        try (java.io.PrintWriter writer = new java.io.PrintWriter("workson.txt")) {
+        try (java.io.PrintWriter writer = new java.io.PrintWriter("src/main/resources/workson.txt")) {
             for (WorksOn w : worksOnList) {
-                writer.println(w.toString());
+                writer.println(w.getEmpNumber() + ", " + w.getProjNumber() + ", " + w.getHours());
             }
-            messageField.setText("Saved to workson.txt.");
+            messageField.setText(worksOnList.size() + " works-on records saved to file.");
         } catch (Exception e) {
-            messageField.setText("Error saving file.");
+            messageField.setText("Error saving to file: " + e.getMessage());
         }
     }
 

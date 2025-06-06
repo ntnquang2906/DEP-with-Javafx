@@ -4,6 +4,8 @@ Student number: 7722242
 Subject code: CSIT213
 -----------------------------------*/
 
+package com.model;
+
 public class Admin extends Employee {
     private String skills;
 
@@ -18,6 +20,11 @@ public class Admin extends Employee {
 
     public void setSkills(String skills) {
         this.skills = skills;
+    }
+
+    // 👇 Add this to match the expected call in DEP.java
+    public String getFunction() {
+        return skills;
     }
 
     @Override

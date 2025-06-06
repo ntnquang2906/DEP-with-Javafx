@@ -4,6 +4,8 @@ Student number: 7722242
 Subject code: CSIT213
 -----------------------------------*/
 
+package com.model;
+
 public class WorksOn {
     private int empNumber;
     private int projNumber;
