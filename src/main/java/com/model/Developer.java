@@ -6,9 +6,11 @@ Subject code: CSIT213
 
 package com.model;
 
+//Developer class represents an employee of type Developer.
 public class Developer extends Employee {
-    private String programmingLanguages;
+    private String programmingLanguages; 
 
+    // Constructor to initialize all fields including inherited ones
     public Developer(int empNumber, String name, String dob, String address, String gender, double salary,
                      int supervisorNumber, int deptNumber, String programmingLanguages) {
         super(empNumber, name, dob, address, gender, salary, supervisorNumber, deptNumber);

@@ -6,13 +6,15 @@ Subject code: CSIT213
 
 package com.model;
 
+//Project class represents a project within a department.
 public class Project {
-    private int projNumber;
-    private String title;
-    private String sponsor;
-    private int deptNumber;
-    private double budget;
+    private int projNumber;     
+    private String title;      
+    private String sponsor;    
+    private int deptNumber;    
+    private double budget;      
 
+    // Constructor to initialize all fields
     public Project(int projNumber, String title, String sponsor, int deptNumber, double budget) {
         this.projNumber = projNumber;
         this.title = title;

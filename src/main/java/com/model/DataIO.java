@@ -11,14 +11,17 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+ //The DataIO class provides static methods for loading data from files
 public class DataIO {
 
+    // Base path where the input data files are stored
     private static final String RESOURCE_PATH = "src/main/resources/";
 
+    //Loads department data from a file into an ArrayList of Department objects.
     public static ArrayList<Department> loadDepartments(String fileName) {
         ArrayList<Department> departments = new ArrayList<>();
         try (Scanner scanner = new Scanner(new File(RESOURCE_PATH + fileName))) {
-            scanner.useDelimiter(", |\\r\\n|\\n");
+            scanner.useDelimiter(", |\\r\\n|\\n"); 
             while (scanner.hasNext()) {
                 int deptNumber = Integer.parseInt(scanner.next());
                 String deptName = scanner.next();
@@ -33,6 +36,7 @@ public class DataIO {
         return departments;
     }
 
+    //Loads employee data from a file and creates Admin or Developer objects based on type.
     public static ArrayList<Employee> loadEmployees(String fileName) {
         ArrayList<Employee> employees = new ArrayList<>();
         try (Scanner scanner = new Scanner(new File(RESOURCE_PATH + fileName))) {
@@ -40,8 +44,9 @@ public class DataIO {
                 String line = scanner.nextLine().trim();
                 String[] parts = line.split(", ");
 
-                if (parts.length < 10) continue; // skip invalid lines
+                if (parts.length < 10) continue; // Skip invalid/incomplete lines
 
+                // Parse common fields
                 String type = parts[0];
                 int empNumber = Integer.parseInt(parts[1]);
                 String name = parts[2];
@@ -51,8 +56,9 @@ public class DataIO {
                 double salary = Double.parseDouble(parts[6]);
                 int supervisorNumber = Integer.parseInt(parts[7]);
                 int deptNumber = Integer.parseInt(parts[8]);
-                String extra = parts[9];
+                String extra = parts[9]; // Skill (Developer) or Title (Admin)
 
+                // Create appropriate subclass based on type
                 if (type.equals("A")) {
                     employees.add(new Admin(empNumber, name, dob, address, gender, salary, supervisorNumber, deptNumber, extra));
                 } else if (type.equals("D")) {
@@ -65,6 +71,7 @@ public class DataIO {
         return employees;
     }
 
+    //Loads project data from a file into an ArrayList of Project objects.
     public static ArrayList<Project> loadProjects(String fileName) {
         ArrayList<Project> projects = new ArrayList<>();
         try (Scanner scanner = new Scanner(new File(RESOURCE_PATH + fileName))) {
@@ -83,6 +90,7 @@ public class DataIO {
         return projects;
     }
 
+    //Loads works-on relationships from a file into an ArrayList of WorksOn objects.
     public static ArrayList<WorksOn> loadWorksOn(String fileName) {
         ArrayList<WorksOn> worksOnList = new ArrayList<>();
         try (Scanner scanner = new Scanner(new File(RESOURCE_PATH + fileName))) {

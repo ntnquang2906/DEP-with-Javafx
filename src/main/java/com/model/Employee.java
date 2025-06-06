@@ -6,7 +6,9 @@ Subject code: CSIT213
 
 package com.model;
 
+//Abstract class Employee – base class for Admin and Developer.
 public abstract class Employee {
+    // Common employee fields
     private int empNumber;
     private String name;
     private String dob;
@@ -16,6 +18,7 @@ public abstract class Employee {
     private int supervisorNumber;
     private int deptNumber;
 
+    // Constructor to initialize all common fields
     public Employee(int empNumber, String name, String dob, String address, String gender,
                     double salary, int supervisorNumber, int deptNumber) {
         this.empNumber = empNumber;

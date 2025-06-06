@@ -6,13 +6,15 @@ Subject code: CSIT213
 
 package com.model;
 
+//Department class represents a department in the organization.
 public class Department {
-    private int deptNumber;
-    private String deptName;
-    private int managerNumber;
-    private double budget;
-    private String startDate;
+    private int deptNumber;       
+    private String deptName;  
+    private int managerNumber; 
+    private double budget;      
+    private String startDate;     
 
+    // Constructor to initialize all fields
     public Department(int deptNumber, String deptName, int managerNumber, double budget, String startDate) {
         this.deptNumber = deptNumber;
         this.deptName = deptName;

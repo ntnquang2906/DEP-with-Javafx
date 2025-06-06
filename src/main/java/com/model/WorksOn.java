@@ -6,11 +6,13 @@ Subject code: CSIT213
 
 package com.model;
 
+//WorksOn class represents the relationship between an employee and a project.
 public class WorksOn {
-    private int empNumber;
-    private int projNumber;
-    private double hours;
+    private int empNumber;    
+    private int projNumber;   
+    private double hours;    
 
+    // Constructor to initialize all fields
     public WorksOn(int empNumber, int projNumber, double hours) {
         this.empNumber = empNumber;
         this.projNumber = projNumber;
@@ -41,14 +43,12 @@ public class WorksOn {
         this.hours = hours;
     }
 
-    // Used for saving to file
     @Override
     public String toString() {
         return empNumber + ", " + projNumber + ", " + String.format("%.0f", hours);
     }
 
-    // Optional method to show user-friendly format in ListView
     public String toDisplayString() {
         return "Employee " + empNumber + " works on Project " + projNumber + " for " + hours + " hours";
     }
-} 
+}

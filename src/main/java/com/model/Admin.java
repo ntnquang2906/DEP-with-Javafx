@@ -6,9 +6,11 @@ Subject code: CSIT213
 
 package com.model;
 
+//Admin class represents an employee of type Admin.
 public class Admin extends Employee {
-    private String skills;
+    private String skills; 
 
+    // Constructor to initialize all fields including inherited ones
     public Admin(int empNumber, String name, String dob, String address, String gender, double salary, int supervisorNumber, int deptNumber, String skills) {
         super(empNumber, name, dob, address, gender, salary, supervisorNumber, deptNumber);
         this.skills = skills;
@@ -22,13 +24,14 @@ public class Admin extends Employee {
         this.skills = skills;
     }
 
-    // 👇 Add this to match the expected call in DEP.java
     public String getFunction() {
         return skills;
     }
 
     @Override
     public String toString() {
-        return "A, " + getEmpNumber() + ", " + getName() + ", " + getDob() + ", " + getAddress() + ", " + getGender() + ", " + String.format("%.1f", getSalary()) + ", " + getSupervisorNumber() + ", " + getDeptNumber() + (skills.trim().isEmpty() ? "" : ", " + skills.trim());
+        return "A, " + getEmpNumber() + ", " + getName() + ", " + getDob() + ", " + getAddress() + ", " + getGender() + ", " +
+               String.format("%.1f", getSalary()) + ", " + getSupervisorNumber() + ", " + getDeptNumber() + 
+               (skills.trim().isEmpty() ? "" : ", " + skills.trim());
     }
 }
